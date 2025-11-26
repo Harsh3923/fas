@@ -195,6 +195,7 @@ public class ProductServiceImpl implements ProductService {
     // -----------------------------------------------------------
     // IMAGE SAVE METHOD 1 (backend folder)
     // -----------------------------------------------------------
+    @SuppressWarnings("null")
     private String saveImage(MultipartFile imageFile) {
 
         if (!imageFile.getContentType().startsWith("image/")
@@ -224,6 +225,7 @@ public class ProductServiceImpl implements ProductService {
     // -----------------------------------------------------------
     // IMAGE SAVE METHOD 2 (frontend public/products)
     // -----------------------------------------------------------
+    @SuppressWarnings("null")
     private String saveImage2(MultipartFile imageFile) {
 
         if (!imageFile.getContentType().startsWith("image/")

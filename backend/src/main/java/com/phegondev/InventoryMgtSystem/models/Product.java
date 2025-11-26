@@ -47,7 +47,7 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    // NEW — Add Supplier Relationship
+    // Supplier Relationship (NEW)
     @ManyToOne
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
@@ -64,6 +64,9 @@ public class Product {
                 ", expiryDate=" + expiryDate +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", createdAt=" + createdAt +
+                ", supplier=" + (supplier != null ? supplier.getName() : null) +
                 '}';
     }
 }
+
+
