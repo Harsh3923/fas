@@ -9,7 +9,7 @@ const CategoryPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
 
-  //fetcg the categories form our backend
+  //fetch the categories form our backend
 
   useEffect(() => {
     const getCategories = async () => {
@@ -37,7 +37,7 @@ const CategoryPage = () => {
       await ApiService.createCategory({ name: categoryName });
       showMessage("Category sucessfully added");
       setCategoryName(""); //clear input
-      window.location.reload(); //relode page
+      window.location.reload(); //reload page
     } catch (error) {
       showMessage(
         error.response?.data?.message || "Error Loggin in a User: " + error
@@ -84,7 +84,7 @@ const CategoryPage = () => {
     }
   };
 
-  //metjhod to show message or errors
+  //method to show message or errors
   const showMessage = (msg) => {
     setMessage(msg);
     setTimeout(() => {
@@ -125,7 +125,7 @@ const CategoryPage = () => {
                     Edit
                   </button>
                   <button onClick={() => handleDeleteCategory(category.id)}>
-                    Edlete
+                    Delete
                   </button>
                 </div>
               </li>
