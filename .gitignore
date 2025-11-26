@@ -1,0 +1,30 @@
+# Backend build outputs
+backend/target/
+backend/.mvn/
+**/target/
+
+# Node modules (never track)
+frontend/node_modules/
+node_modules/
+
+# Build artifacts
+*.class
+*.jar
+*.war
+*.log
+
+# IDE junk
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Maven build
+backend/target/
+frontend/node_modules/
+*.log
+.idea/
+.vscode/
