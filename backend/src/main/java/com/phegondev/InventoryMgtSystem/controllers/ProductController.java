@@ -31,7 +31,7 @@ public class ProductController {
     @PostMapping("/add")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Response> saveProduct(
-            @RequestParam("imageFile") MultipartFile imageFile,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
             @RequestParam("name") String name,
             @RequestParam("sku") String sku,
             @RequestParam("price") BigDecimal price,
@@ -40,18 +40,18 @@ public class ProductController {
             @RequestParam("supplierId") Long supplierId,
             @RequestParam(value = "description", required = false) String description
     ) {
+
         ProductDTO productDTO = new ProductDTO();
         productDTO.setName(name);
         productDTO.setSku(sku);
         productDTO.setPrice(price);
         productDTO.setStockQuantity(stockQuantity);
         productDTO.setCategoryId(categoryId);
-        productDTO.setSupplierId(supplierId); // NEW
+        productDTO.setSupplierId(supplierId);
         productDTO.setDescription(description);
 
         return ResponseEntity.ok(productService.saveProduct(productDTO, imageFile));
     }
-
 
     @PutMapping("/update")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -62,7 +62,7 @@ public class ProductController {
             @RequestParam(value = "price", required = false) BigDecimal price,
             @RequestParam(value = "stockQuantity", required = false) Integer stockQuantity,
             @RequestParam(value = "categoryId", required = false) Long categoryId,
-            @RequestParam("supplierId") Long supplierId,
+            @RequestParam(value = "supplierId", required = false) Long supplierId,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam("productId") Long productId
     ) {
@@ -77,9 +77,7 @@ public class ProductController {
         productDTO.setDescription(description);
 
         return ResponseEntity.ok(productService.updateProduct(productDTO, imageFile));
-
     }
-
 
     @GetMapping("/all")
     public ResponseEntity<Response> getAllProducts() {
@@ -91,16 +89,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Response> deleteProduct(@PathVariable Long id) {
         return ResponseEntity.ok(productService.deleteProduct(id));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Response> searchProduct(@RequestParam String input) {
+    public ResponseEntity<Response> searchProduct(@RequestParam(name = "searchValue") String input) {
         return ResponseEntity.ok(productService.searchProduct(input));
     }
-
-
 }
+

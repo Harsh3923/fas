@@ -192,34 +192,38 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
-    // -----------------------------------------------------------
-    // IMAGE SAVE METHOD 1 (backend folder)
-    // -----------------------------------------------------------
+  // -----------------------------------------------------------
+// IMAGE SAVE METHOD - BACKEND /product-images/ FOLDER
+// -----------------------------------------------------------
     @SuppressWarnings("null")
     private String saveImage(MultipartFile imageFile) {
 
-        if (!imageFile.getContentType().startsWith("image/")
-                || imageFile.getSize() > 1024 * 1024 * 1024) {
-            throw new IllegalArgumentException("Only image files under 1GB allowed");
+        if (!imageFile.getContentType().startsWith("image/")) {
+            throw new IllegalArgumentException("Only image files allowed");
         }
 
-        File directory = new File(IMAGE_DIRECTORY);
+        // Backend folder to store images
+        String uploadDir = System.getProperty("user.dir") + "/uploads/";
+
+        File directory = new File(uploadDir);
 
         if (!directory.exists()) {
-            directory.mkdir();
-            log.info("Directory created");
+            directory.mkdirs();
+            log.info("Created image directory: {}", uploadDir);
         }
 
         String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-        String imagePath = IMAGE_DIRECTORY + fileName;
+        String absolutePath = uploadDir + fileName;
 
         try {
-            imageFile.transferTo(new File(imagePath));
+            imageFile.transferTo(new File(absolutePath));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Error saving image: " + e.getMessage());
+            log.error("Error saving image: {}", e.getMessage());
+            throw new RuntimeException("Error saving image");
         }
 
-        return imagePath;
+        // Return relative path so frontend can access it
+        return "uploads/" + fileName;
     }
 
     // -----------------------------------------------------------

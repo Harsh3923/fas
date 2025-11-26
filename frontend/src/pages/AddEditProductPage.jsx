@@ -89,8 +89,8 @@ const AddEditProductPage = () => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("sku", sku);
-    formData.append("price", price);
-    formData.append("stockQuantity", stockQuantity);
+    formData.append("price", parseFloat(price));
+    formData.append("stockQuantity", parseFloat(stockQuantity));
     formData.append("categoryId", categoryId);
     formData.append("supplierId", supplierId);   // ✅ FIXED key
     formData.append("description", description);
@@ -131,7 +131,7 @@ const AddEditProductPage = () => {
 
           {/* SKU */}
           <div className="form-group">
-            <label>Sku</label>
+            <label>SKU</label>
             <input type="text" value={sku} onChange={(e) => setSku(e.target.value)} required />
           </div>
 
