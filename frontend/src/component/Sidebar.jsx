@@ -12,11 +12,11 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
-      <h1 className="ims">IMS</h1>
+      <h1 className="ims">Nexa Fashions</h1>
       <ul className="nav-links">
         {isAuth && (
           <li>
-            <Link to="/dashboard">Dashboaard</Link>
+            <Link to="/dashboard">Dashboard</Link>
           </li>
         )}
 
