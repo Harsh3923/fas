@@ -47,6 +47,10 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    // NEW — Add Supplier Relationship
+    @ManyToOne
+    @JoinColumn(name = "supplier_id")
+    private Supplier supplier;
 
     @Override
     public String toString() {
