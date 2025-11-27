@@ -1,5 +1,15 @@
 package com.phegondev.InventoryMgtSystem.services.impl;
 
+import java.io.File;
+import java.util.List;
+import java.util.UUID;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.phegondev.InventoryMgtSystem.dtos.ProductDTO;
 import com.phegondev.InventoryMgtSystem.dtos.Response;
 import com.phegondev.InventoryMgtSystem.exceptions.NotFoundException;
@@ -13,16 +23,6 @@ import com.phegondev.InventoryMgtSystem.services.ProductService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,13 +32,11 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
     private final CategoryRepository categoryRepository;
-    private final SupplierRepository supplierRepository;   //  NEW
+    private final SupplierRepository supplierRepository;
 
-    private static final String IMAGE_DIRECTORY =
-            System.getProperty("user.dir") + "/product-images/";
-
-    private static final String IMAGE_DIRECTORY_2 =
-            "/Users/dennismac/phegonDev/ims-react/public/products/";
+    // All images will be stored in: <backend-root>/uploads/
+    private static final String UPLOAD_DIR =
+            System.getProperty("user.dir") + "/uploads/";
 
     // -----------------------------------------------------------
     // SAVE PRODUCT
@@ -46,11 +44,24 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Response saveProduct(ProductDTO productDTO, MultipartFile imageFile) {
 
-        Category category = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new NotFoundException("Category Not Found"));
+        log.info("🔥 DEBUG: saveProduct() called");
+        log.info("DTO: {}", productDTO);
 
-        Supplier supplier = supplierRepository.findById(productDTO.getSupplierId())   // ✅ NEW
-                .orElseThrow(() -> new NotFoundException("Supplier Not Found"));
+        Category category = categoryRepository.findById(productDTO.getCategoryId())
+                .orElseThrow(() -> {
+                    log.error("❌ Category NOT FOUND: {}", productDTO.getCategoryId());
+                    return new NotFoundException("Category Not Found");
+                });
+
+        log.info("✔ Category found: {}", category.getName());
+
+        Supplier supplier = supplierRepository.findById(productDTO.getSupplierId())
+                .orElseThrow(() -> {
+                    log.error("❌ Supplier NOT FOUND: {}", productDTO.getSupplierId());
+                    return new NotFoundException("Supplier Not Found");
+                });
+
+        log.info("✔ Supplier found: {}", supplier.getName());
 
         Product productToSave = Product.builder()
                 .name(productDTO.getName())
@@ -59,15 +70,29 @@ public class ProductServiceImpl implements ProductService {
                 .stockQuantity(productDTO.getStockQuantity())
                 .description(productDTO.getDescription())
                 .category(category)
-                .supplier(supplier)     // ✅ NEW
+                .supplier(supplier)
                 .build();
 
+        log.info("🔥 Product BEFORE SAVE: {}", productToSave);
+
         if (imageFile != null && !imageFile.isEmpty()) {
-            String imagePath = saveImage2(imageFile);
+            log.info("Saving image...");
+            String imagePath = saveImage(imageFile);   // ✅ use saveImage(), not saveImage2
             productToSave.setImageUrl(imagePath);
+            log.info("✔ Image saved: {}", imagePath);
+        } else {
+            log.info("⚠ No image uploaded");
         }
 
-        productRepository.save(productToSave);
+        log.info("🚨 ATTEMPTING TO SAVE PRODUCT TO DB NOW...");
+
+        try {
+            productRepository.save(productToSave);
+            log.info("✔✔✔ Product saved successfully!");
+        } catch (Exception e) {
+            log.error("❌❌❌ ERROR saving product: {}", e.getMessage(), e);
+            throw e;
+        }
 
         return Response.builder()
                 .status(200)
@@ -85,7 +110,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException("Product Not Found"));
 
         if (imageFile != null && !imageFile.isEmpty()) {
-            String imagePath = saveImage2(imageFile);
+            String imagePath = saveImage(imageFile);   // ✅ use same upload dir
             existingProduct.setImageUrl(imagePath);
         }
 
@@ -96,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
             existingProduct.setCategory(category);
         }
 
-        // Supplier update  ✅ NEW
+        // Supplier update
         if (productDTO.getSupplierId() != null && productDTO.getSupplierId() > 0) {
             Supplier supplier = supplierRepository.findById(productDTO.getSupplierId())
                     .orElseThrow(() -> new NotFoundException("Supplier Not Found"));
@@ -128,6 +153,12 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductDTO> productDTOList =
                 modelMapper.map(productList, new TypeToken<List<ProductDTO>>(){}.getType());
+
+        productDTOList.forEach(dto -> {
+                Product product = productRepository.findById(dto.getId()).get();
+                dto.setSupplierName(product.getSupplier().getName());
+    });
+
 
         return Response.builder()
                 .status(200)
@@ -192,9 +223,9 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
-  // -----------------------------------------------------------
-// IMAGE SAVE METHOD - BACKEND /product-images/ FOLDER
-// -----------------------------------------------------------
+    // -----------------------------------------------------------
+    // IMAGE SAVE METHOD - BACKEND /uploads/ FOLDER
+    // -----------------------------------------------------------
     @SuppressWarnings("null")
     private String saveImage(MultipartFile imageFile) {
 
@@ -202,57 +233,24 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("Only image files allowed");
         }
 
-        // Backend folder to store images
-        String uploadDir = System.getProperty("user.dir") + "/uploads/";
-
-        File directory = new File(uploadDir);
+        File directory = new File(UPLOAD_DIR);
 
         if (!directory.exists()) {
             directory.mkdirs();
-            log.info("Created image directory: {}", uploadDir);
+            log.info("Created image directory: {}", UPLOAD_DIR);
         }
 
         String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-        String absolutePath = uploadDir + fileName;
+        String absolutePath = UPLOAD_DIR + fileName;
 
         try {
             imageFile.transferTo(new File(absolutePath));
         } catch (Exception e) {
-            log.error("Error saving image: {}", e.getMessage());
+            log.error("Error saving image: {}", e.getMessage(), e);
             throw new RuntimeException("Error saving image");
         }
 
-        // Return relative path so frontend can access it
+        // Store relative path in DB
         return "uploads/" + fileName;
-    }
-
-    // -----------------------------------------------------------
-    // IMAGE SAVE METHOD 2 (frontend public/products)
-    // -----------------------------------------------------------
-    @SuppressWarnings("null")
-    private String saveImage2(MultipartFile imageFile) {
-
-        if (!imageFile.getContentType().startsWith("image/")
-                || imageFile.getSize() > 1024 * 1024 * 1024) {
-            throw new IllegalArgumentException("Only image files under 1GB allowed");
-        }
-
-        File directory = new File(IMAGE_DIRECTORY_2);
-
-        if (!directory.exists()) {
-            directory.mkdir();
-            log.info("Directory created");
-        }
-
-        String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-        String imagePath = IMAGE_DIRECTORY_2 + fileName;
-
-        try {
-            imageFile.transferTo(new File(imagePath));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Error saving image: " + e.getMessage());
-        }
-
-        return "products/" + fileName;
     }
 }

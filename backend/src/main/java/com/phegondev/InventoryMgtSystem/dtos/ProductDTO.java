@@ -22,6 +22,8 @@ public class ProductDTO {
     private Long productId;
     private Long supplierId;
 
+    private String supplierName;
+
     private String name;
 
     private String sku;
