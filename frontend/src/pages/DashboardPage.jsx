@@ -139,11 +139,23 @@ const DashboardPage = () => {
                         <CartesianGrid strokeDasharray="3 3"/>
                         <XAxis dataKey="day" label={{value: "Day", position: "insideBottomRight", offset: -5}}/>
                         <YAxis/>
-                        <Tooltip/>
+                        <Tooltip
+                        contentStyle={{
+                            background: "#111",
+                            border: "1px solid #d4af37",
+                            color: "#d4af37"
+                        }}
+                        labelStyle={{
+                            color: "#d4af37",   // <-- fixes invisible date
+                            fontWeight: "600"
+                        }}
+                        />
                         <Legend/>
                         <Line type={"monotone"}
                         dataKey={selectedData}
-                        stroke="#008080"
+                        stroke="#d4af37"
+                        dot={{ r: 4, fill: "#d4af37" }}  // ⭐ GOLD DOTS
+                        activeDot={{ r: 6, fill: "#fff", stroke: "#d4af37", strokeWidth: 2 }}
                         fillOpacity={0.3}
                         fill="#008080"
                         />
