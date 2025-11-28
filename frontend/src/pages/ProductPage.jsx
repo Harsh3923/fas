@@ -45,18 +45,17 @@ const ProductPage = () => {
     if (window.confirm("Are you sure you want to delete this Product?")) {
       try {
         await ApiService.deleteProduct(productId);
-        showMessage("Product sucessfully Deleted");
-        window.location.reload(); //relode page
+        showMessage("Product successfully Deleted");
+        window.location.reload();
       } catch (error) {
         showMessage(
           error.response?.data?.message ||
-            "Error Deleting in a product: " + error
+            "Error Deleting Product: " + error
         );
       }
     }
   };
 
-  //method to show message or errors
   const showMessage = (msg) => {
     setMessage(msg);
     setTimeout(() => {
@@ -72,7 +71,7 @@ const ProductPage = () => {
         <div className="product-header">
           <h1>Products</h1>
           <button
-            className="add-product-btn"
+            className="add-product-btn gold-btn"
             onClick={() => navigate("/add-product")}
           >
             Add Product
@@ -82,11 +81,11 @@ const ProductPage = () => {
         {products && (
           <div className="product-list">
             {products.map((product) => (
-              <div key={product.id} className="product-item">
+              <div key={product.id} className="product-item gold-card">
 
-                {/* ⭐ SUPPLIER BADGE (new) */}
+                {/* ⭐ SUPPLIER BADGE */}
                 {product.supplierName && (
-                  <div className="supplier-badge">
+                  <div className="supplier-badge gold-badge">
                     {product.supplierName}
                   </div>
                 )}
@@ -99,22 +98,21 @@ const ProductPage = () => {
 
                 <div className="product-info">
                   <h3 className="name">{product.name}</h3>
-                  <p className="sku">Sku: {product.sku}</p>
+                  <p className="sku">SKU: {product.sku}</p>
                   <p className="price">Price: {product.price}</p>
-                  <p className="quantity">
-                    Quantity: {product.stockQuantity}
-                  </p>
+                  <p className="quantity">Quantity: {product.stockQuantity}</p>
                 </div>
 
                 <div className="product-actions">
                   <button
-                    className="edit-btn"
+                    className="edit-btn gold-outline-btn"
                     onClick={() => navigate(`/edit-product/${product.id}`)}
                   >
                     Edit
                   </button>
+
                   <button
-                    className="delete-btn"
+                    className="delete-btn red-btn"
                     onClick={() => handleDeleteProduct(product.id)}
                   >
                     Delete

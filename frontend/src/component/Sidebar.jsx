@@ -11,8 +11,9 @@ const Sidebar = () => {
   const isAdmin = ApiService.isAdmin();
 
   return (
-    <div className="sidebar">
-      <h1 className="ims">Nexa Fashions</h1>
+    <div className="sidebar sidebar-gold">
+      <h1 className="sidebar-logo">Nexa Fashions</h1>
+
       <ul className="nav-links">
         {isAuth && (
           <li>
@@ -28,19 +29,19 @@ const Sidebar = () => {
 
         {isAdmin && (
           <li>
-            <Link to="/category">Category</Link>
+            <Link to="/category">Categories</Link>
           </li>
         )}
 
         {isAdmin && (
           <li>
-            <Link to="/product">Product</Link>
+            <Link to="/product">Products</Link>
           </li>
         )}
 
         {isAdmin && (
           <li>
-            <Link to="/supplier">Supplier</Link>
+            <Link to="/supplier">Suppliers</Link>
           </li>
         )}
 
@@ -64,7 +65,7 @@ const Sidebar = () => {
 
         {isAuth && (
           <li>
-            <Link onClick={logout} to="/login">
+            <Link className="logout-link" onClick={logout} to="/login">
               Logout
             </Link>
           </li>
