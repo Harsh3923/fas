@@ -3,6 +3,8 @@
 A complete end-to-end **Inventory Management System** built for fashion boutiques.
 This system supports product tracking, supplier management, stock monitoring, transactions (purchase, sales, returns), authentication, and role-based access control — all with a modern React UI and Spring Boot backend.
 
+Link for Demo of the Application: https://drive.google.com/file/d/1F2eexpjX_vH-gkbrLhdfJM9WKTEHMP0B/view?usp=sharing 
+
 ---
 
 ## 🚀 **Tech Stack**
